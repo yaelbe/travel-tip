@@ -1,3 +1,5 @@
+
+
 export const storageService = {
     post,   // Create
     get,    // Read
@@ -60,7 +62,7 @@ function _save(entityType, entities) {
 
 function _makeId(length = 5) {
     var txt = ''
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    var possible = 'abcdefghijklmnopqrstuvwxyz0123456789'
     for (var i = 0; i < length; i++) {
         txt += possible.charAt(Math.floor(Math.random() * possible.length))
     }
