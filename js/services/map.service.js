@@ -2,6 +2,8 @@ export const mapService = {
   initMap,
   addMarker,
   panTo,
+  locationFromAddress,
+
 }
 
 // Var that is used throughout this Module (not global)
@@ -47,3 +49,14 @@ function _connectGoogleApi() {
     elGoogleApi.onerror = () => reject('Google script failed to load')
   })
 }
+
+function locationFromAddress(address) {
+
+  const API_KEY = 'AIzaSyCCFaZB_hNjFfmy8dUF1hgsK27XTUPJ30E'
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${API_KEY}`
+  return fetch(url)
+    .then(res => res.json())
+    .then(res => res.results[0].geometry.location)
+
+}
+

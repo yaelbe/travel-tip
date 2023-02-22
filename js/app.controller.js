@@ -7,20 +7,16 @@ window.onPanTo = onPanTo
 window.onGetLocs = onGetLocs
 window.onGetUserPos = onGetUserPos
 window.onDelete = onDelete
-window.onRenderLocations = RenderLocations
+window.onRenderLocations = renderLocation
+window.onHandleSubmit = onHandleSubmit
 
 function onInit() {
     mapService.initMap()
         .then(() => {
             console.log('Map is ready')
-            RenderLocations()
+            renderLocation()
         })
         .catch(() => console.log('Error: cannot init map'))
-}
-
-function RenderLocations() {
-    locService.getLocs().then(renderLocs)
-
 }
 
 // This function provides a Promise API to the callback-based-api of getCurrentPosition
@@ -55,30 +51,50 @@ function onGetUserPos() {
         })
 }
 
-function onPanTo(obj) {
-    console.log('Panning the Map', obj)
-    renderLocationName(obj.name)
-    mapService.panTo(obj.lat, obj.lng)
+function onPanTo(location) {
+    console.log('Panning the Map', location)
+    renderLocationName(location.name)
+    mapService.panTo(location.lat, location.lng)
 }
 
-function renderLocs(locs) {
-    let strHtml = locs.map(location =>
-        `<li>
-        ${location.name}<br>
-      location: [lat:${location.lat} , lng: ${location.lng}]
-      <button onclick="onPanTo({lat:${location.lat},lng:${location.lng},name:'${location.name}'})">Go</button>
-      <button onclick="onDelete('${location.id}')">delete</button>
-        </li > `
-    )
+function renderLocation() {
+    locService.query().then(locs => {
+        console.log(locs);
 
-    document.querySelector('.locations-list').innerHTML = strHtml.join('')
+        let strHtml = locs.map(location =>
+            `<li>
+            ${location.name}<br>
+          location: [lat:${location.lat} , lng: ${location.lng}]
+          <button onclick="onPanTo({lat:${location.lat},lng:${location.lng},name:'${location.name}'})">Go</button>
+          <button onclick="onDelete('${location.id}')">delete</button>
+            </li > `
+        )
+
+        document.querySelector('.locations-list').innerHTML = strHtml.join('')
+
+    })
+
 }
 
 function onDelete(id) {
-    console.log(id);
-    locService.remove(id).then(onInit)
+    locService.remove(id).then(renderLocation)
 }
 
 function renderLocationName(name) {
-    document.querySelector('.addres').innerText = name
+    document.querySelector('.address').innerText = name
+}
+
+function onHandleSubmit(e) {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const fromEntries = Object.fromEntries(formData)
+    const keyword = fromEntries['keyword']
+
+
+    mapService.locationFromAddress(keyword.trim())
+        .then((pos) => locService.createLocation(pos, keyword))
+        .then(onPanTo)
+        .then(renderLocation)
+    e.target.reset()
+
 }

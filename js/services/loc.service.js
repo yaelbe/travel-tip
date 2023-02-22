@@ -4,21 +4,17 @@ import { utilService } from './util.service.js'
 const LOCATION_KEY = 'locationDB'
 
 export const locService = {
-    getLocs: query,
-    remove
+    query,
+    remove,
+    createLocation
 
 }
 
-_createLocations()
+// _createLocations()
 const locs = [
     { name: 'Greatplace', lat: 32.047104, lng: 34.832384, },
     { name: 'Neveragain', lat: 32.047201, lng: 34.832581, }
 ]
-
-function getEmptyLocation(id = '', createdAt = '', updatedAt = '') {
-    return { id, createdAt, updatedAt }
-
-}
 
 function query() {
     return storageService.query(LOCATION_KEY)
@@ -36,23 +32,26 @@ function _createDemoLocations() {
     let locationLat = [36.188110, 32.068424]
     let locationLng = [-115.176468, 34.824785]
 
-    const locations = locationNames.map((locationName, i) => {
+    locationNames.map((locationName, i) => {
         console.log(locationName);
-        const location = _createLocation(locationName)
-        location.lat = locationLat[i]
-        location.lng = locationLng[i]
-        return location
+        let pos = { lat: locationLat[i], lng: locationLng[i] }
+        createLocation(pos, locationName)
     })
-    utilService.saveToStorage(LOCATION_KEY, locations)
 }
 
-function _createLocation(name) {
-    const location = getEmptyLocation()
+function createLocation(pos, name) {
+    const location = {}
+    const { lat, lng } = pos
     location.name = name
+    location.lat = lat
+    location.lng = lng
     location.id = utilService.makeId()
     location.createdAt = utilService.formatTime()
     location.updatedAt = utilService.formatTime()
-    return location
+
+    return storageService.post(LOCATION_KEY, location)
+
+
 }
 
 function remove(locationId) {
