@@ -79,7 +79,6 @@ function formatTime(date) {
     second: 'numeric',
     hour12: false,
   }
-
   return new Intl.DateTimeFormat('default', options).format(date)
 }
 
