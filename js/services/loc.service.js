@@ -4,7 +4,8 @@ import { utilService } from './util.service.js'
 const LOCATION_KEY = 'locationDB'
 
 export const locService = {
-    getLocs
+    getLocs: query,
+    remove
 
 }
 
@@ -19,26 +20,21 @@ function getEmptyLocation(id = '', createdAt = '', updatedAt = '') {
 
 }
 
-function getLocs() {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve(locs)
-        }, 2000)
-    })
+function query() {
+    return storageService.query(LOCATION_KEY)
 }
 
 function _createLocations() {
     let locations = utilService.loadFromStorage(LOCATION_KEY)
-    console.log(locations)
     if (!locations || !locations.length) {
         _createDemoLocations()
     }
 }
 
 function _createDemoLocations() {
-    let locationNames = ['GreatPlace', 'NeverAgian']
-    let locationLat = [32.047104, 32.047201]
-    let locationLng = [34.832384, 34.832581]
+    let locationNames = ['Las-Vegas', 'Coding-AcademyHQ']
+    let locationLat = [36.188110, 32.068424]
+    let locationLng = [-115.176468, 34.824785]
 
     const locations = locationNames.map((locationName, i) => {
         console.log(locationName);
@@ -59,3 +55,6 @@ function _createLocation(name) {
     return location
 }
 
+function remove(locationId) {
+    return storageService.remove(LOCATION_KEY, locationId)
+}
