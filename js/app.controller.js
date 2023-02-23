@@ -34,7 +34,11 @@ function onAddMarker(event) {
   let lat = event.latLng.lat()
   let lng = event.latLng.lng()
   console.log(lat, lng)
-  mapService.askForName(lat, lng).then((name) => mapService.addMarker({ lat, lng }, name))
+  mapService
+    .askForName(lat, lng)
+    .then((name) => mapService.addMarker({ lat, lng }, name))
+    .then(locService.createLocationWithMarker)
+    .then(renderLocation)
 }
 
 function onGetLocs() {

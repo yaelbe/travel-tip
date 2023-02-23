@@ -60,6 +60,7 @@ function locationFromAddress(address) {
 }
 
 function askForName(lat, lng) {
+  google.maps.InfoWindow.prototype.opened = false
   const innerHtml = `
    <input type="text" name="location" placeholder="what is this place?"/>
    <button class="btn-ok" >✅</button>`
@@ -69,7 +70,6 @@ function askForName(lat, lng) {
     position: { lat, lng },
   })
   infoWindow.open(gMap)
-  console.log('0')
 
   return new Promise((resolve, reject) => {
     google.maps.event.addListener(infoWindow, 'domready', () => {
@@ -78,34 +78,8 @@ function askForName(lat, lng) {
         console.log(lat, lng)
         const locationName = document.querySelector('input[name="location"]').value
         infoWindow.close()
-        console.log('3')
         resolve(locationName)
       })
     })
   })
-
-  // google.maps.event.addListener(infoWindow, 'domready', () => {
-  //   let elOk = document.querySelector('.btn-ok')
-  //   elOk.addEventListener('click', () => {
-  //     console.log(lat, lng)
-  //     const locationName = document.querySelector('input[name="location"]').value
-  //     infoWindow.close()
-  //     console.log('3')
-  //     resolve(lat, lng, locationName)
-
-  // google.maps.event.addListener(infoWindow, 'domready', () => {
-  //   console.log('1')
-
-  //   return new Promise((resolve, reject) => {
-  //     console.log('2')
-  //     let elOk = document.querySelector('.btn-ok')
-  //     elOk.addEventListener('click', () => {
-  //       console.log(lat, lng)
-  //       const locationName = document.querySelector('input[name="location"]').value
-  //       infoWindow.close()
-  //       console.log('3')
-  //       resolve(lat, lng, locationName)
-  //     })
-  //   })
-  // })
 }
