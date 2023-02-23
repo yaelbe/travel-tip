@@ -3,7 +3,7 @@ export const mapService = {
   addMarker,
   panTo,
   locationFromAddress,
-
+  askForName,
 }
 
 // Var that is used throughout this Module (not global)
@@ -17,15 +17,16 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
       center: { lat, lng },
       zoom: 15,
     })
+    gMap.addListener('click', onAddMarker)
     // console.log('Map!', gMap)
   })
 }
 
-function addMarker(loc) {
+function addMarker(loc, name) {
   var marker = new google.maps.Marker({
     position: loc,
     map: gMap,
-    title: 'Hello World!',
+    title: name,
   })
   return marker
 }
@@ -51,12 +52,60 @@ function _connectGoogleApi() {
 }
 
 function locationFromAddress(address) {
-
   const API_KEY = 'AIzaSyCCFaZB_hNjFfmy8dUF1hgsK27XTUPJ30E'
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${API_KEY}`
   return fetch(url)
-    .then(res => res.json())
-    .then(res => res.results[0].geometry.location)
-
+    .then((res) => res.json())
+    .then((res) => res.results[0].geometry.location)
 }
 
+function askForName(lat, lng) {
+  const innerHtml = `
+   <input type="text" name="location" placeholder="what is this place?"/>
+   <button class="btn-ok" >✅</button>`
+
+  let infoWindow = new google.maps.InfoWindow({
+    content: innerHtml,
+    position: { lat, lng },
+  })
+  infoWindow.open(gMap)
+  console.log('0')
+
+  return new Promise((resolve, reject) => {
+    google.maps.event.addListener(infoWindow, 'domready', () => {
+      let elOk = document.querySelector('.btn-ok')
+      elOk.addEventListener('click', () => {
+        console.log(lat, lng)
+        const locationName = document.querySelector('input[name="location"]').value
+        infoWindow.close()
+        console.log('3')
+        resolve(locationName)
+      })
+    })
+  })
+
+  // google.maps.event.addListener(infoWindow, 'domready', () => {
+  //   let elOk = document.querySelector('.btn-ok')
+  //   elOk.addEventListener('click', () => {
+  //     console.log(lat, lng)
+  //     const locationName = document.querySelector('input[name="location"]').value
+  //     infoWindow.close()
+  //     console.log('3')
+  //     resolve(lat, lng, locationName)
+
+  // google.maps.event.addListener(infoWindow, 'domready', () => {
+  //   console.log('1')
+
+  //   return new Promise((resolve, reject) => {
+  //     console.log('2')
+  //     let elOk = document.querySelector('.btn-ok')
+  //     elOk.addEventListener('click', () => {
+  //       console.log(lat, lng)
+  //       const locationName = document.querySelector('input[name="location"]').value
+  //       infoWindow.close()
+  //       console.log('3')
+  //       resolve(lat, lng, locationName)
+  //     })
+  //   })
+  // })
+}
