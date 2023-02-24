@@ -39,6 +39,7 @@ function onAddMarker(event) {
     .then((name) => mapService.addMarker({ lat, lng }, name))
     .then(locService.createLocationWithMarker)
     .then(renderLocation)
+    .catch(console.log)
 }
 
 function onGetLocs() {

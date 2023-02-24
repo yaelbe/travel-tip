@@ -8,6 +8,7 @@ export const mapService = {
 
 // Var that is used throughout this Module (not global)
 var gMap
+var gInfoWindow
 
 function initMap(lat = 32.0749831, lng = 34.9120554) {
   // console.log('InitMap')
@@ -41,7 +42,7 @@ function _connectGoogleApi() {
   const API_KEY = 'AIzaSyCCFaZB_hNjFfmy8dUF1hgsK27XTUPJ30E'
 
   var elGoogleApi = document.createElement('script')
-  elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`
+  elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&callback=mapReady`
   elGoogleApi.async = true
   document.body.append(elGoogleApi)
 
@@ -49,6 +50,10 @@ function _connectGoogleApi() {
     elGoogleApi.onload = resolve
     elGoogleApi.onerror = () => reject('Google script failed to load')
   })
+}
+
+function mapReady() {
+  console.log('Map is ready')
 }
 
 function locationFromAddress(address) {
@@ -60,26 +65,31 @@ function locationFromAddress(address) {
 }
 
 function askForName(lat, lng) {
-  google.maps.InfoWindow.prototype.opened = false
+  if (gInfoWindow) gInfoWindow.close()
   const innerHtml = `
    <input type="text" name="location" placeholder="what is this place?"/>
    <button class="btn-ok" >✅</button>`
 
-  let infoWindow = new google.maps.InfoWindow({
+  gInfoWindow = new google.maps.InfoWindow({
     content: innerHtml,
     position: { lat, lng },
   })
-  infoWindow.open(gMap)
+  gInfoWindow.open(gMap)
 
   return new Promise((resolve, reject) => {
-    google.maps.event.addListener(infoWindow, 'domready', () => {
+    google.maps.event.addListener(gInfoWindow, 'domready', () => {
       let elOk = document.querySelector('.btn-ok')
       elOk.addEventListener('click', () => {
         console.log(lat, lng)
         const locationName = document.querySelector('input[name="location"]').value
-        infoWindow.close()
-        resolve(locationName)
+        gInfoWindow.close()
+        gInfoWindow = null
+        locationName ? resolve(locationName) : reject('nonate')
       })
+      google.maps.event.addListener(gInfoWindow, 'closeclick', function () {
+        reject('nonate')
+      })
+      google.maps.event.addListener(window, 'close', () => reject('nonate'))
     })
   })
 }
